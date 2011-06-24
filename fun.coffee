@@ -4,9 +4,9 @@ dec = (x) -> x - 1
 
 sum = (a, b) -> a + b
 
-even = (x) -> x % 2 == 0
+even = (x) -> x % 2 is 0
 
-odd = (x) -> x % 2 == 1
+odd = (x) -> x % 2 is 1
 
 identity = (x) -> x
 
@@ -20,18 +20,18 @@ accsr = (x, coll) -> coll[x]
 
 flip = (f) -> (a, b) -> f b, a
 
-apply = (f, args) -> f.apply(null, args)
+apply = (f, args) -> f.apply null, args
 
-call = (f, args...) -> f.apply(null, args)
+call = (f, args...) -> f.apply null, args
 
-partial = (f, rest1...) -> (rest2...) -> f.apply(null, rest1.concat(rest2))
+partial = (f, rest1...) -> (rest2...) -> f.apply null, rest1.concat rest2
 
 arity = (arities) ->
   (args...) ->
-    arities[args.length or 'default'].apply(null, args)
+    arities[args.length or 'default'].apply null, args
 
 dispatch = (dfn, table) ->
-  f = (args...) -> table[dfn.apply(null, args) or 'default'].apply(null, args)
+  f = (args...) -> table[dfn.apply(null, args) or 'default'].apply null, args
   f._table = table
   f
 
@@ -43,14 +43,15 @@ extendfn = (gfn, exts) ->
 # Strict Sequences
 
 strictMap = (f, colls...) ->
-  if colls.length == 1
-    f(x) for x, i in colls[0]
+  if colls.length is 1
+    f x for x, i in colls[0]
   else
     first = colls[0]
-    f.apply(null, (x[i] for x in colls)) for x, i in first
+    for _, i in first
+      f.apply null, x[i] for x in colls
 
 strictReduce = arity
-  2: (f, coll) -> reduce(f, coll[0], coll[1..])
+  2: (f, coll) -> strictReduce f, coll[0], coll[1..]
   3: (f, acc, coll) ->
     for x, i in coll
       acc = f(acc, x)
@@ -67,13 +68,13 @@ class LazySeq
   first: -> @head
   rest: -> if @tail then @tail() else null
 
-lazyseq = (h, t) -> new LazySeq(h, t)
+lazyseq = (h, t) -> new LazySeq h, t
 
 lazy = (coll) ->
-  if coll.length == 0
+  if coll.length is 0
     return null
   h = coll[0]
-  lazyseq(h, -> lazy(coll[1..]))
+  lazyseq h, -> lazy coll[1..]
 
 toArray = (s) ->
   acc = []
@@ -85,25 +86,25 @@ toArray = (s) ->
 integers = arity
   0: -> integers 0
   1: (x) ->
-    new LazySeq(x, -> integers (x+1))
+    new LazySeq x, -> integers x+1
 
 fib = ->
-  fibSeq = (a, b) -> lazyseq(a, -> fibSeq b, a+b)
+  fibSeq = (a, b) -> lazyseq a, -> fibSeq b, a+b
   fibSeq 0, 1
 
 range = arity
   1: (end) -> range 0, end
   2: (start, end) ->
-    if start == end
+    if start is end
       null
     else
-      lazyseq(start, -> range inc(start), end)
+      lazyseq start, -> range inc(start), end
 
 take = (n, s) ->
-  if n == 0 or s == null
+  if n is 0 or s is null
     null
   else
-    lazyseq(s.first(), -> take dec(n), s.rest())
+    lazyseq s.first(), -> take dec(n), s.rest()
 
 last = (s) ->
   c = null
@@ -114,15 +115,15 @@ last = (s) ->
 
 lazyMap = (f, s) ->
   if s
-    lazyseq(f(s.first()), -> lazyMap f, s.rest())
+    lazyseq f(s.first()), -> lazyMap f, s.rest()
   else
     null
 
 lazyReduce = arity
-  2: (f, s) -> lazyReduce(f, s.first(), s.rest())
+  2: (f, s) -> lazyReduce f, s.first(), s.rest()
   3: (f, acc, s) ->
     while s
-      acc = f(acc, s.first())
+      acc = f acc, s.first()
       s = s.rest()
     acc
 
@@ -130,7 +131,7 @@ lazyFilter = (pred, s) ->
   if s
     h = s.first()
     if pred h
-      lazyseq(h, -> lazyFilter pred, s.rest())
+      lazyseq h, -> lazyFilter pred, s.rest()
     else
       lazyFilter pred, s.rest()
   else
