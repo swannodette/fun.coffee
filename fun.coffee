@@ -201,5 +201,8 @@ if exports?
   for n, f of toExport
     exports[n] = f
 else
+  this.net = {} if not this.net?
+  this.net.dnolen = {} if not this.net.dnolen?
+  this.net.dnolen.fun = {} if not this.net.dnolen.fun?
   for n, f of toExport
-    this[n] = f
+    this.net.dnolen.fun[n] = f
