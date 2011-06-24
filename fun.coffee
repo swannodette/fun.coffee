@@ -143,7 +143,7 @@ lazyFilter = (pred, s) ->
 seqType = arity
   2: (f, s) ->
     s.constructor.name
-  default: (f, x, s) ->
+  default: (f, _, s) ->
     seqType(f, s)
 
 map = dispatch seqType,
