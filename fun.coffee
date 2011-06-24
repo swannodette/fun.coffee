@@ -16,7 +16,7 @@ get = (coll, x) -> if coll then coll[x] else null
 
 getIn = (x, keys) -> reduce get, x, keys
 
-acc = (x, coll) -> coll[x]
+accsr = (x, coll) -> coll[x]
 
 flip = (f) -> (a, b) -> f b, a
 
@@ -28,26 +28,35 @@ partial = (f, rest1...) -> (rest2...) -> f.apply(null, rest1.concat(rest2))
 
 arity = (arities) ->
   (args...) ->
-    arities[args.length].apply(null, args)
+    arities[args.length or 'default'].apply(null, args)
+
+dispatch = (dfn, table) ->
+  f = (args...) -> table[dfn.apply(null, args) or 'default'].apply(null, args)
+  f._table = table
+  f
+
+extendfn = (gfn, exts) ->
+  for t, f of exts
+    gfn._types[t] = f
 
 # ==============================================================================
 # Strict Sequences
 
-map = (f, colls...) ->
+strictMap = (f, colls...) ->
   if colls.length == 1
     f(x) for x, i in colls[0]
   else
     first = colls[0]
-    f.apply(null, (map partial(flip(get), i), colls)) for x, i in first
+    f.apply(null, (x[i] for x in colls)) for x, i in first
 
-reduce = arity
+strictReduce = arity
   2: (f, coll) -> reduce(f, coll[0], coll[1..])
   3: (f, acc, coll) ->
     for x, i in coll
       acc = f(acc, x)
     acc
 
-filter = (pred, coll) ->
+strictFilter = (pred, coll) ->
   x for x in coll when pred(x)
 
 # ==============================================================================
@@ -58,11 +67,13 @@ class LazySeq
   first: -> @head
   rest: -> if @tail then @tail() else null
 
+lazyseq = (h, t) -> new LazySeq(h, t)
+
 lazy = (coll) ->
   if coll.length == 0
     return null
   h = coll[0]
-  new LazySeq(h, -> lazy(coll[1..]))
+  lazyseq(h, -> lazy(coll[1..]))
 
 toArray = (s) ->
   acc = []
@@ -77,7 +88,7 @@ integers = arity
     new LazySeq(x, -> integers (x+1))
 
 fib = ->
-  fibSeq = (a, b) -> new LazySeq(a, -> fibSeq b, a+b)
+  fibSeq = (a, b) -> lazyseq(a, -> fibSeq b, a+b)
   fibSeq 0, 1
 
 range = arity
@@ -86,13 +97,13 @@ range = arity
     if start == end
       null
     else
-      new LazySeq(start, -> range inc(start), end)
+      lazyseq(start, -> range inc(start), end)
 
 take = (n, s) ->
   if n == 0 or s == null
     null
   else
-    new LazySeq(s.first(), -> take dec(n), s.rest())
+    lazyseq(s.first(), -> take dec(n), s.rest())
 
 last = (s) ->
   c = null
@@ -103,7 +114,7 @@ last = (s) ->
 
 lazyMap = (f, s) ->
   if s
-    new LazySeq(f(s.first()), -> lazyMap f, s.rest())
+    lazyseq(f(s.first()), -> lazyMap f, s.rest())
   else
     null
 
@@ -119,11 +130,35 @@ lazyFilter = (pred, s) ->
   if s
     h = s.first()
     if pred h
-      new LazySeq(h, -> lazyFilter pred, s.rest())
+      lazyseq(h, -> lazyFilter pred, s.rest())
     else
       lazyFilter pred, s.rest()
   else
     null
+
+# ==============================================================================
+# Generic
+
+seqType = arity
+  2: (f, s) ->
+    if s instanceof LazySeq
+      'lazyseq'
+    else
+      'array'
+  3: (f, x, s) ->
+    seqType(f, s)
+
+map = dispatch seqType,
+  array: strictMap
+  lazyseq: lazyMap
+
+filter = dispatch seqType,
+  array: strictFilter
+  lazyseq: lazyFilter
+
+reduce = dispatch seqType,
+  array: strictReduce
+  lazyseq: lazyReduce
 
 # ==============================================================================
 # Exports
@@ -142,9 +177,9 @@ toExport =
   apply: apply
   call: call
   partial: partial
-  map: map
-  reduce: reduce
-  filter: filter
+  strictMap: strictMap
+  strictRduce: strictReduce
+  strictFilter: strictFilter
   LazySeq: LazySeq
   lazy: lazy
   toArray: toArray
@@ -156,6 +191,10 @@ toExport =
   range: range
   fib: fib
   last: last
+  seqType: seqType
+  map: map
+  filter: filter
+  reduce: reduce
 
 if exports?
   for n, f of toExport
