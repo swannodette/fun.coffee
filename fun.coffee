@@ -70,7 +70,7 @@ class LazySeq
 
 lazyseq = (h, t) -> new LazySeq h, t
 
-lazy = (coll) ->
+toLazy = (coll) ->
   if coll.length is 0
     return null
   h = coll[0]
@@ -182,7 +182,8 @@ toExport =
   strictRduce: strictReduce
   strictFilter: strictFilter
   LazySeq: LazySeq
-  lazy: lazy
+  lazyseq: lazyseq
+  toLazy: toLazy
   toArray: toArray
   take: take
   lazyMap: lazyMap
