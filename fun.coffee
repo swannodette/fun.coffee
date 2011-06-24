@@ -37,7 +37,7 @@ dispatch = (dfn, table) ->
 
 extendfn = (gfn, exts) ->
   for t, f of exts
-    gfn._types[t] = f
+    gfn._table[t] = f
 
 # ==============================================================================
 # Strict Sequences
@@ -141,24 +141,21 @@ lazyFilter = (pred, s) ->
 
 seqType = arity
   2: (f, s) ->
-    if s instanceof LazySeq
-      'lazyseq'
-    else
-      'array'
-  3: (f, x, s) ->
+    s.constructor.name
+  default: (f, x, s) ->
     seqType(f, s)
 
 map = dispatch seqType,
-  array: strictMap
-  lazyseq: lazyMap
+  Array: strictMap
+  LazySeq: lazyMap
 
 filter = dispatch seqType,
-  array: strictFilter
-  lazyseq: lazyFilter
+  Array: strictFilter
+  LazySeq: lazyFilter
 
 reduce = dispatch seqType,
-  array: strictReduce
-  lazyseq: lazyReduce
+  Array: strictReduce
+  LazySeq: lazyReduce
 
 # ==============================================================================
 # Exports
@@ -177,6 +174,9 @@ toExport =
   apply: apply
   call: call
   partial: partial
+  arity: arity
+  dispatch: dispatch
+  extendfn: extendfn
   strictMap: strictMap
   strictRduce: strictReduce
   strictFilter: strictFilter
