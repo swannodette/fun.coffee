@@ -144,7 +144,7 @@ seqType = arity
   2: (f, s) ->
     s.constructor.name
   default: (f, _, s) ->
-    seqType(f, s)
+    seqType f, s
 
 map = dispatch seqType,
   Array: strictMap
