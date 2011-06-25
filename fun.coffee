@@ -53,7 +53,7 @@ strictMap = (f, colls...) ->
 strictReduce = arity
   2: (f, coll) -> strictReduce f, coll[0], coll[1..]
   3: (f, acc, coll) ->
-    for x, i in coll
+    for x in coll
       acc = f(acc, x)
     acc
 
@@ -86,7 +86,7 @@ toArray = (s) ->
 integers = arity
   0: -> integers 0
   1: (x) ->
-    new LazySeq x, -> integers x+1
+    lazyseq x, -> integers x+1
 
 fib = ->
   fibSeq = (a, b) -> lazyseq a, -> fibSeq b, a+b
