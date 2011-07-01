@@ -18,6 +18,8 @@ getIn = (x, keys) -> reduce get, x, keys
 
 accsr = (x, coll) -> coll[x]
 
+mesg = (sel, args...) -> (o) -> o[sel].apply o, args
+
 flip = (f) -> (a, b) -> f b, a
 
 apply = (f, args) -> f.apply null, args
