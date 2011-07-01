@@ -26,6 +26,10 @@ call = (f, args...) -> f.apply null, args
 
 partial = (f, rest1...) -> (rest2...) -> f.apply null, rest1.concat rest2
 
+keys = (o) -> k for k, v of o
+
+vals = (o) -> v for k, v of o
+
 arity = (arities) ->
   (args...) ->
     arities[args.length or 'default'].apply null, args
