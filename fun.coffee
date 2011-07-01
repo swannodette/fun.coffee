@@ -45,6 +45,31 @@ extendfn = (gfn, exts) ->
   for t, f of exts
     gfn._table[t] = f
 
+merge = arity
+  0: -> null
+  1: (a) -> a
+  2: (a, b) ->
+    r = {}
+    for k, v of a
+      r[k] = v
+    for k, v of b
+      r[k] = v
+    r
+  default: (ms...) ->
+    reduce merge, ms
+
+mergeWith = arity
+  2: (f, a) -> a
+  3: (f, a, b) ->
+    r = {}
+    for k, v of a
+      r[k] = v
+    for k, v of b
+      r[k] = f r[k], v
+    r
+  default: (f, ms...) ->
+    reduce (partial mergeWith, f) , ms
+
 # ==============================================================================
 # Strict Sequences
 
@@ -245,6 +270,9 @@ toExport =
   toFn: toFn
   get: get
   getIn: getIn
+  mesg: mesg
+  keys: keys
+  vals: vals
   flip: flip
   apply: apply
   call: call
@@ -252,6 +280,8 @@ toExport =
   arity: arity
   dispatch: dispatch
   extendfn: extendfn
+  merge: merge
+  mergeWith: mergeWith
   strictMap: strictMap
   strictRduce: strictReduce
   strictFilter: strictFilter
