@@ -1,3 +1,5 @@
+eq = (a, b) -> a is b
+
 inc = (x) -> x + 1
 
 dec = (x) -> x - 1
@@ -50,6 +52,7 @@ dispatch = (dfn, table) ->
           throw Error "No dispatch for arguments #{args}"
         f.apply null, args
   f._table = table
+  f._dfn = dfn
   f
 
 extendfn = (gfn, exts) ->
@@ -122,6 +125,18 @@ strictPartition = arity
         last[n] = null
       coll = coll[n..]
     r
+
+strictSome = (pred, coll) ->
+  for x in coll
+    if pred x
+      return true
+  false
+
+strictEvery = (pred, coll) ->
+  for x in coll
+    if not pred x
+      return false
+  true
 
 # ==============================================================================
 # Lazy Sequences
@@ -239,14 +254,56 @@ lazyFilter = (pred, s) ->
   else
     null
 
+lazySome = (pred, s) ->
+  if s
+    h = s.first()
+    if pred h
+      true
+    else
+      lazySome pred, s.rest()
+  else
+     false
+
+lazyEvery = (pred, s) ->
+  if s
+    h = s.first()
+    if not pred h
+      false
+    else
+      lazyEvery pred, s.rest()
+  else
+     true
+
+# ==============================================================================
+# Equality
+
+arrayEquals = (a, b) ->
+  if not (a.length is b.length)
+    false
+  else
+    for x, i in a
+      if not (x is b[i])
+        return false
+  true
+
+lazySeqEquals = (a, b) ->
+
+arrayLazySeqEquals = (a, b) ->
+
 # ==============================================================================
 # Generic
+
+type = arity
+  1: (a) ->
+     a.constructor.name
+  2: (a, b) ->
+    "#{a.constructor.name}:#{b.constructor.name}"
 
 seqType = arity
   2: (f, s) ->
     s.constructor.name
   default: (f, _, s) ->
-    seqType f, s
+    s.constructor.name
 
 map = dispatch seqType,
   Array: strictMap
@@ -268,6 +325,19 @@ partition = dispatch seqType,
   Array: strictPartition
   LazySeq: lazyPartition
 
+equals = dispatch type,
+  "Array:Array": arrayEquals
+  "LazySeq:LazySeq": lazySeqEquals
+  "Array:LazySeq": arrayLazySeqEquals
+  "LazySeq:Array": (a, b) -> arrayLazySeqEquals(b, a)
+  default: (a, b) ->
+    if a is b
+      true
+    else if a.equals?
+      a.equals b
+    else
+      false
+
 # ==============================================================================
 # Exports
 
@@ -281,6 +351,7 @@ toExport =
   toFn: toFn
   get: get
   getIn: getIn
+  accsr: accsr
   mesg: mesg
   keys: keys
   vals: vals
@@ -319,6 +390,7 @@ toExport =
   filter: filter
   reduce: reduce
   concat: concat
+  equals: equals
 
 if exports?
   for n, f of toExport

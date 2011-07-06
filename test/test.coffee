@@ -1,6 +1,7 @@
 nu = require("nodeunit")
 fun = require("../src/fun.coffee")
 
+
 {inc, dec, sum, even, odd, identity} = fun
 
 exports.testInc = (test) ->
@@ -26,6 +27,7 @@ exports.testOdd = (test) ->
 exports.testIdentity = (test) ->
   test.ok (identity 1) is 1
   test.done()
+
 
 {toFn, get, getIn, accsr, mesg} = fun
 
@@ -65,6 +67,7 @@ exports.testMesg = (test) ->
   test.ok (m o) is 3
   test.done()
 
+
 {flip, apply, call, partial} = fun
 
 exports.testFlip = (test) ->
@@ -81,3 +84,15 @@ exports.testCall = (test) ->
   f = (a, b) -> a + b
   test.ok (call f, 1, 2) is 3
   test.done()
+
+exports.testPartial = (test) ->
+  f = (a, b) -> a + b
+  test.ok ((partial f, 1) 2) is 3
+  test.done()
+
+
+{keys, vals} = fun
+
+# exports.testKeys = (test) ->
+#   o = {foo:"bar", baz:"woz"}
+#   test.ok (keys o) equals
