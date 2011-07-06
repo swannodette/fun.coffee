@@ -287,8 +287,22 @@ arrayEquals = (a, b) ->
   true
 
 lazySeqEquals = (a, b) ->
+  if a and not b
+    false
+  else if not a and b
+    false
+  else if not a and not b
+    true
+  else
+    ah = a.first()
+    bh = b.first()
+    if not equals ah, bh
+      false
+    else
+      lazySeqEquals a.rest(), b.rest()
 
 arrayLazySeqEquals = (a, b) ->
+  lazySeqEquals toLazy(a), b
 
 # ==============================================================================
 # Generic
@@ -342,6 +356,7 @@ equals = dispatch type,
 # Exports
 
 toExport =
+  eq: eq
   inc: inc
   dec: dec
   sum: sum
