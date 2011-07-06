@@ -211,3 +211,27 @@ exports.strictEvery1 = (test) ->
   a = [true, true, true, true, false, true, true, true, true]
   test.ok strictEvery(identity, a) is false
   test.done()
+
+
+{toLazy, toArray} = fun
+
+exports.testRoundtripLazy = (test) ->
+  a = [0..10]
+  b = toLazy a
+  c = toArray b
+  test.ok equals a, c
+  test.done()
+
+
+{range, repeat, repeatedly, cycle, lazyConcat} = fun
+
+exports.testRange = (test) ->
+  a = [1..9]
+  r = range 1, 10
+  test.ok equals a, r
+  test.done()
+
+exports.testRepeat = (test) ->
+  a = repeat 5, 1
+  test.ok equals a, [1,1,1,1,1]
+  test.done()
