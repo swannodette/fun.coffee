@@ -127,8 +127,11 @@ strictPartition = (n, coll, pad) ->
 strictSome = (pred, coll) ->
   for x in coll
     if pred x
-      return true
+      return x
   false
+
+strictAny = (pred, coll) ->
+  strictSome(pred, coll) and true
 
 strictEvery = (pred, coll) ->
   for x in coll
@@ -384,6 +387,7 @@ toExport =
   strictFilter: strictFilter
   strictPartition: strictPartition
   strictSome: strictSome
+  strictAny: strictAny
   strictEvery: strictEvery
   partition: partition
   LazySeq: LazySeq

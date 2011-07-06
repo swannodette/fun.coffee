@@ -158,7 +158,8 @@ exports.testMergeWith = (test) ->
   test.done()
 
 
-{groupBy, strictMap, strictReduce, strictFilter, strictPartition, strictSome, strictEvery} = fun
+{groupBy, strictMap, strictReduce, strictFilter, strictPartition} = fun
+{strictSome, strictAny, strictEvery} = fun
 
 exports.testGroupBy = (test) ->
   a = [0..10]
@@ -184,4 +185,29 @@ exports.strictFilter = (test) ->
 exports.strictPartition = (test) ->
   a = [1..10]
   test.ok equals strictPartition(2, a), [[1,2],[3,4],[5,6],[7,8],[9,10]]
+  test.done()
+
+exports.strictSome1 = (test) ->
+  a = [false, false, false, false, "foo", false, false, false, false]
+  test.ok strictSome(identity, a) is "foo"
+  test.done()
+
+exports.strictSome2 = (test) ->
+  a = [false, false, false, false, false, false, false, false, false]
+  test.ok strictSome(identity, a) is false
+  test.done()
+
+exports.strictAny = (test) ->
+  a = [false, false, false, false, "foo", false, false, false, false]
+  test.ok strictAny(identity, a) is true
+  test.done()
+
+exports.strictEvery1 = (test) ->
+  a = [true, true, true, true, true, true, true, true, true]
+  test.ok strictEvery(identity, a)
+  test.done()
+
+exports.strictEvery1 = (test) ->
+  a = [true, true, true, true, false, true, true, true, true]
+  test.ok strictEvery(identity, a) is false
   test.done()
