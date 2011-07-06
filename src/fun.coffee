@@ -113,18 +113,16 @@ strictReduce = arity
 strictFilter = (pred, coll) ->
   x for x in coll when pred(x)
 
-strictPartition = arity
-  1: (n, coll) -> strictPartition coll, n, false
-  2: (n, pad, coll) ->
-    r = []
-    last = null
-    while coll.length > 0
-      last = coll[0..n]
-      r.push last
-      if pad and last.length < n
-        last[n] = null
-      coll = coll[n..]
-    r
+strictPartition = (n, coll, pad) ->
+  r = []
+  last = null
+  while coll.length > 0
+    last = coll[0..n-1]
+    r.push last
+    if pad and last.length < n
+      last[n] = null
+    coll = coll[n..]
+  r
 
 strictSome = (pred, coll) ->
   for x in coll

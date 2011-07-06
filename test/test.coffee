@@ -165,3 +165,24 @@ exports.testGroupBy = (test) ->
   f = (a) -> if even a then "even" else "odd"
   test.ok equals groupBy(f, a), {even:[0,2,4,6,8,10], odd:[1,3,5,7,9]}
   test.done()
+
+exports.strictMap = (test) ->
+  a = [0..10]
+  test.ok equals strictMap(inc, a), [1..11]
+  test.done()
+
+exports.strictReduce = (test) ->
+  a = [0..10]
+  test.ok strictReduce(sum, a) is 55
+  test.done()
+
+exports.strictFilter = (test) ->
+  a = [0..10]
+  test.ok equals strictFilter(odd, a), [1,3,5,7,9]
+  test.done()
+
+exports.strictPartition = (test) ->
+  a = [1..10]
+  console.log strictPartition(2, a)
+  test.ok equals strictPartition(2, a), [[1,2],[3,4],[5,6],[7,8],[9,10]]
+  test.done()
