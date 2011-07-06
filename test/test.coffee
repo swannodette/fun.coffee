@@ -27,7 +27,7 @@ exports.testIdentity = (test) ->
   test.ok (identity 1) is 1
   test.done()
 
-{toFn, get, getIn, accsr} = fun
+{toFn, get, getIn, accsr, mesg} = fun
 
 exports.testToFn1 = (test) ->
   o = [1,2,3]
@@ -52,4 +52,32 @@ exports.testGet2 = (test) ->
 exports.testGetIn = (test) ->
   o = [1,2,{foo:"bar"}]
   test.ok (getIn o, [2, "foo", 2]) is "r"
+  test.done()
+
+exports.testAccsr = (test) ->
+  a = [1,2,3]
+  test.ok (accsr 2, a) is 3
+  test.done()
+
+exports.testMesg = (test) ->
+  o = {foo: (a, b) -> a + b}
+  m = mesg "foo", 1, 2
+  test.ok (m o) is 3
+  test.done()
+
+{flip, apply, call, partial} = fun
+
+exports.testFlip = (test) ->
+  f = (a, b) -> a + b
+  test.ok ((flip f) "foo", "bar") is "barfoo"
+  test.done()
+
+exports.testApply = (test) ->
+  f = (a, b) -> a + b
+  test.ok (apply f, [1,2]) is 3
+  test.done()
+
+exports.testCall = (test) ->
+  f = (a, b) -> a + b
+  test.ok (call f, 1, 2) is 3
   test.done()
