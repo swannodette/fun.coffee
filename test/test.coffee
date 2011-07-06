@@ -213,7 +213,7 @@ exports.strictEvery1 = (test) ->
   test.done()
 
 
-{toLazy, toArray} = fun
+{take, toLazy, toArray} = fun
 
 exports.testRoundtripLazy = (test) ->
   a = [0..10]
@@ -234,4 +234,15 @@ exports.testRange = (test) ->
 exports.testRepeat = (test) ->
   a = repeat 5, 1
   test.ok equals a, [1,1,1,1,1]
+  test.done()
+
+exports.testRepeatedly = (test) ->
+  a = repeatedly 5, -> 1
+  test.ok equals a, [1,1,1,1,1]
+  test.done()
+
+exports.testCycle = (test) ->
+  a = [1,2,3]
+  s = take 9, cycle a
+  test.ok equals s, [1,2,3,1,2,3,1,2,3]
   test.done()
