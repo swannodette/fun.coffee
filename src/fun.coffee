@@ -34,10 +34,21 @@ vals = (o) -> v for k, v of o
 
 arity = (arities) ->
   (args...) ->
-    arities[args.length or 'default'].apply null, args
+    f = arities[args.length]
+    if not f
+      f = arities["default"]
+    if not f
+      throw Error "No dispatch for arity #{args.length}"
+    f.apply null, args
 
 dispatch = (dfn, table) ->
-  f = (args...) -> table[dfn.apply(null, args) or 'default'].apply null, args
+  f = (args...) ->
+        f =  table[dfn.apply(null, args)]
+        if not f
+          f = table["default"]
+        if not f
+          throw Error "No dispatch for arguments #{args}"
+        f.apply null, args
   f._table = table
   f
 
