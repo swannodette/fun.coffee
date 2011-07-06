@@ -162,14 +162,6 @@ toArray = (s) ->
     s = s.rest()
   acc
 
-integers = arity
-  0: -> integers 0
-  1: (x) -> lazyseq x, -> integers x+1
-
-fib = ->
-  fibSeq = (a, b) -> lazyseq a, -> fibSeq b, a+b
-  fibSeq 0, 1
-
 range = arity
   1: (end) -> range 0, end
   2: (start, end) ->
@@ -404,9 +396,7 @@ toExport =
   lazyMap: lazyMap
   lazyReduce: lazyReduce
   lazyFilter: lazyFilter
-  integers: integers
   range: range
-  fib: fib
   last: last
   seqType: seqType
   map: map
