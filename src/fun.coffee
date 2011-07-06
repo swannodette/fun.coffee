@@ -277,6 +277,12 @@ lazyEvery = (pred, s) ->
 # ==============================================================================
 # Equality
 
+objectEquals = (a, b) ->
+  for k, v of a
+    if not b.hasOwnProperty(k) or not equals v, b[k]
+      return false
+  true
+
 arrayEquals = (a, b) ->
   if not (a.length is b.length)
     false
@@ -340,17 +346,12 @@ partition = dispatch seqType,
   LazySeq: lazyPartition
 
 equals = dispatch type,
+  "Object:Object": objectEquals
   "Array:Array": arrayEquals
   "LazySeq:LazySeq": lazySeqEquals
   "Array:LazySeq": arrayLazySeqEquals
   "LazySeq:Array": (a, b) -> arrayLazySeqEquals(b, a)
-  default: (a, b) ->
-    if a is b
-      true
-    else if a.equals?
-      a.equals b
-    else
-      false
+  default: (a, b) -> a is b
 
 # ==============================================================================
 # Exports
@@ -379,10 +380,13 @@ toExport =
   extendfn: extendfn
   merge: merge
   mergeWith: mergeWith
-  strictMap: strictMap
-  strictRduce: strictReduce
-  strictFilter: strictFilter
   groupBy: groupBy
+  strictMap: strictMap
+  strictReduce: strictReduce
+  strictFilter: strictFilter
+  strictPartition: strictPartition
+  strictSome: strictSome
+  strictEvery: strictEvery
   partition: partition
   LazySeq: LazySeq
   lazyseq: lazyseq

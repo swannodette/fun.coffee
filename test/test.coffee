@@ -91,8 +91,77 @@ exports.testPartial = (test) ->
   test.done()
 
 
-{keys, vals} = fun
+{equals, keys, vals} = fun
 
-# exports.testKeys = (test) ->
-#   o = {foo:"bar", baz:"woz"}
-#   test.ok (keys o) equals
+exports.testKeys = (test) ->
+  o = {foo:"bar", baz:"woz"}
+  test.ok equals keys(o), ["foo", "baz"]
+  test.done()
+
+exports.testVals = (test) ->
+  o = {foo:"bar", baz:"woz"}
+  test.ok equals vals(o), ["bar", "woz"]
+  test.done()
+
+
+{arity, dispatch, extendfn} = fun
+
+exports.testArity = (test) ->
+  f = arity
+    0: -> 0
+    1: -> 1
+    2: -> 2
+    default: -> "default"
+  test.ok f() is 0
+  test.ok f(1) is 1
+  test.ok f(1,2) is 2
+  test.ok f(1,2,3,4) is "default"
+  test.done()
+
+exports.testDispatch = (test) ->
+  d = (a) ->
+    if a is 0
+      "foo"
+    else if a is 1
+      "bar"
+  f = dispatch d,
+    foo: -> "wow"
+    bar: -> "pow"
+    default: -> "default"
+  test.ok f(0) is "wow"
+  test.ok f(1) is "pow"
+  test.ok f("yuk") is "default"
+  test.done()
+
+exports.testExtendfn = (test) ->
+  d = (a) -> a.name
+  f = dispatch d,
+    foo: -> "original"
+  extendfn f, {bar: -> "extended"}
+  test.ok f({name:"bar"}) is "extended"
+  test.done()
+
+
+{merge, mergeWith} = fun
+
+exports.testMerge = (test) ->
+  o1 = {foo: "bar0"}
+  o2 = {foo: "bar1", baz: "woz0"}
+  test.ok equals (merge o1, o2), {foo:"bar1", baz:"woz0"}
+  test.done()
+
+exports.testMergeWith = (test) ->
+  o1 = {foo: [1,2], bar: [5,6]}
+  o2 = {foo: [3,4], bar: [7,8]}
+  f = (a, b) -> a.concat b
+  test.ok equals (mergeWith f, o1, o2), {foo:[1,2,3,4],bar:[5,6,7,8]}
+  test.done()
+
+
+{groupBy, strictMap, strictReduce, strictFilter, strictPartition, strictSome, strictEvery} = fun
+
+exports.testGroupBy = (test) ->
+  a = [0..10]
+  f = (a) -> if even a then "even" else "odd"
+  test.ok equals groupBy(f, a), {even:[0,2,4,6,8,10], odd:[1,3,5,7,9]}
+  test.done()
