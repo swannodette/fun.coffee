@@ -183,6 +183,5 @@ exports.strictFilter = (test) ->
 
 exports.strictPartition = (test) ->
   a = [1..10]
-  console.log strictPartition(2, a)
   test.ok equals strictPartition(2, a), [[1,2],[3,4],[5,6],[7,8],[9,10]]
   test.done()

@@ -286,7 +286,7 @@ arrayEquals = (a, b) ->
     false
   else
     for x, i in a
-      if not (x is b[i])
+      if not equals x, b[i]
         return false
   true
 
