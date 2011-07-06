@@ -246,3 +246,50 @@ exports.testCycle = (test) ->
   s = take 9, cycle a
   test.ok equals s, [1,2,3,1,2,3,1,2,3]
   test.done()
+
+exports.testLazyConcat = (test) ->
+  a = toLazy [1,2,3]
+  b = toLazy [4,5,6]
+  c = lazyConcat a, b
+  test.ok equals c, [1,2,3,4,5,6]
+  test.done()
+
+
+{drop, lazyPartition, last} = fun
+
+exports.testLast = (test) ->
+  s = toLazy [1..10]
+  test.ok last(s) is 10
+  test.done()
+
+exports.testDrop = (test) ->
+  s = toLazy [1..10]
+  test.ok equals drop(5, s), [6,7,8,9,10]
+  test.done()
+
+# exports.testLazyPartition = (test) ->
+#   a = toLazy [1..10]
+#   test.ok equals lazyPartition(2, a), [[1,2],[3,4],[5,6],[7,8],[9,10]]
+#   test.done()
+
+
+{lazyMap, lazyReduce, lazyFilter} = fun
+
+exports.testLazyMap = (test) ->
+  s = lazyMap inc, range(1, 10)
+  test.ok equals s, [2..10]
+  test.done()
+
+exports.lazyReduce = (test) ->
+  s = range 1, 10
+  test.ok equals lazyReduce(sum, s), 45
+  test.done()
+
+# exports.lazyFilter = (test) ->
+#   s = range 1, 10
+#   test.ok equals lazyFilter(even, s), [0,2,4,6,8]
+#   test.done()
+
+
+{lazySome, lazyEvery} = fun
+

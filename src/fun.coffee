@@ -199,24 +199,24 @@ lazyConcat = (a, b) ->
     lazyseq a.first(), -> lazyConcat a.rest(), b
 
 lazyPartition = arity
-  2: (n, coll) ->
-  3: (n, coll, pad) ->
-    p = take n, coll
-    r = drop n, coll
+  2: (n, s) ->
+  3: (n, s, pad) ->
+    p = toArray(take n, s)
+    r = drop n, s
     if r is null
-      null
+      lazyseq p, null
     else
       lazyseq p, -> r
 
 drop = arity
-  1: (coll) -> drop 1, coll
-  2: (n, coll) ->
-    if coll is null
+  1: (s) -> drop 1, s
+  2: (n, s) ->
+    if s is null
       null
     else if n is 0
-      coll
+      s
     else
-      drop n-1, rest coll
+      drop n-1, s.rest()
 
 take = (n, s) ->
   if n is 0 or s is null
@@ -397,6 +397,8 @@ toExport =
   repeat: repeat
   repeatedly: repeatedly
   cycle: cycle
+  lazyConcat: lazyConcat
+  lazyPartition: lazyPartition
   drop: drop
   take: take
   lazyMap: lazyMap
