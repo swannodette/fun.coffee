@@ -153,7 +153,7 @@ toLazy = (coll) ->
   if coll.length is 0
     return null
   h = coll[0]
-  lazyseq h, -> lazy coll[1..]
+  lazyseq h, -> toLazy coll[1..]
 
 toArray = (s) ->
   acc = []
@@ -179,7 +179,7 @@ range = arity
       lazyseq start, -> range inc(start), end
 
 repeat = arity
-  1: (x) -> lazyseq n, -> repeat n
+  1: (x) -> lazyseq x, -> repeat x
   2: (n, x) -> take n, repeat x
 
 repeatedly = arity
