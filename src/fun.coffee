@@ -309,15 +309,17 @@ arrayLazySeqEquals = (a, b) ->
 
 type = arity
   1: (a) ->
-     a.constructor.name
+     a.constructor.name or a.constructor._name
   2: (a, b) ->
-    "#{a.constructor.name}:#{b.constructor.name}"
+     aname = a.constructor.name or a.constructor._name
+     bname = b.constructor.name or b.constructor._name
+     "#{aname}:#{bname}"
 
 seqType = arity
   2: (f, s) ->
-    s.constructor.name
+    s.constructor.name or s.constructor._name
   default: (f, _, s) ->
-    s.constructor.name
+    s.constructor.name or s.constructor._name
 
 map = dispatch seqType,
   Array: strictMap
