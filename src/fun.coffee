@@ -103,6 +103,9 @@ strictMap = (f, colls...) ->
     for _, i in first
       f.apply null, x[i] for x in colls
 
+strictMapIndexed = (f, coll) ->
+  f(x, i) for x, i in colls[0]
+
 strictReduce = arity
   2: (f, coll) -> strictReduce f, coll[0], coll[1..]
   3: (f, acc, coll) ->
@@ -227,6 +230,11 @@ lazyMap = (f, s) ->
   else
     null
 
+lazyMapIndexed = arity
+  2: (f, s) -> lazyMapIndex f, s, 0
+  3: (f, s, i) ->
+    lazyseq f(s.first(), i), -> lazyMapIndexed f, s.rest(), i+1
+
 lazyReduce = arity
   2: (f, s) -> lazyReduce f, s.first(), s.rest()
   3: (f, acc, s) ->
@@ -325,6 +333,10 @@ map = dispatch seqType,
   Array: strictMap
   LazySeq: lazyMap
 
+mapIndexed = dispatch seqType,
+  Array: strictMapIndexed
+  LazySeq: lazyMapIndexed
+
 filter = dispatch seqType,
   Array: strictFilter
   LazySeq: lazyFilter
@@ -390,6 +402,7 @@ toExport =
   mergeWith: mergeWith
   groupBy: groupBy
   strictMap: strictMap
+  strictMapIndexed: strictMapIndexed
   strictReduce: strictReduce
   strictFilter: strictFilter
   strictPartition: strictPartition
@@ -409,6 +422,7 @@ toExport =
   drop: drop
   take: take
   lazyMap: lazyMap
+  lazyMapIndexed: lazyMapIndexed
   lazyReduce: lazyReduce
   lazyFilter: lazyFilter
   lazySome: lazySome
@@ -418,6 +432,7 @@ toExport =
   last: last
   seqType: seqType
   map: map
+  mapIndexed: mapIndexed
   filter: filter
   reduce: reduce
   concat: concat
