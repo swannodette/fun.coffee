@@ -190,15 +190,13 @@ lazyConcat = (a, b) ->
   else
     lazyseq a.first(), -> lazyConcat a.rest(), b
 
-lazyPartition = arity
-  2: (n, s) ->
-  3: (n, s, pad) ->
-    p = toArray(take n, s)
+lazyPartition = (n, s, pad) ->
+    p = toArray take n, s
     r = drop n, s
     if r is null
       lazyseq p, null
     else
-      lazyseq p, -> r
+      lazyseq p, -> lazyPartition n, r, pad
 
 drop = arity
   1: (s) -> drop 1, s
@@ -251,11 +249,14 @@ lazySome = (pred, s) ->
   if s
     h = s.first()
     if pred h
-      true
+      h
     else
       lazySome pred, s.rest()
   else
      false
+
+lazyAny = (pred, s) ->
+  lazySome(pred, s) and true
 
 lazyEvery = (pred, s) ->
   if s
@@ -338,6 +339,18 @@ partition = dispatch seqType,
   Array: strictPartition
   LazySeq: lazyPartition
 
+some = dispatch seqType,
+  Array: strictSome
+  LazySeq: lazySome
+
+any = dispatch seqType,
+  Array: strictAny
+  LazySeq: lazyAny
+
+every = dispatch seqType,
+  Array: strictEvery
+  LazySeq: lazyEvery
+
 equals = dispatch type,
   "Object:Object": objectEquals
   "Array:Array": arrayEquals
@@ -396,6 +409,9 @@ toExport =
   lazyMap: lazyMap
   lazyReduce: lazyReduce
   lazyFilter: lazyFilter
+  lazySome: lazySome
+  lazyAny: lazyAny
+  lazyEvery: lazyEvery
   range: range
   last: last
   seqType: seqType
@@ -403,6 +419,9 @@ toExport =
   filter: filter
   reduce: reduce
   concat: concat
+  some: some
+  any: any
+  every: every
   equals: equals
 
 if exports?

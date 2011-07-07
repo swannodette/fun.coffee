@@ -167,47 +167,47 @@ exports.testGroupBy = (test) ->
   test.ok equals groupBy(f, a), {even:[0,2,4,6,8,10], odd:[1,3,5,7,9]}
   test.done()
 
-exports.strictMap = (test) ->
+exports.testStrictMap = (test) ->
   a = [0..10]
   test.ok equals strictMap(inc, a), [1..11]
   test.done()
 
-exports.strictReduce = (test) ->
+exports.testStrictReduce = (test) ->
   a = [0..10]
   test.ok strictReduce(sum, a) is 55
   test.done()
 
-exports.strictFilter = (test) ->
+exports.testStrictFilter = (test) ->
   a = [0..10]
   test.ok equals strictFilter(odd, a), [1,3,5,7,9]
   test.done()
 
-exports.strictPartition = (test) ->
+exports.testStrictPartition = (test) ->
   a = [1..10]
   test.ok equals strictPartition(2, a), [[1,2],[3,4],[5,6],[7,8],[9,10]]
   test.done()
 
-exports.strictSome1 = (test) ->
+exports.testStrictSome1 = (test) ->
   a = [false, false, false, false, "foo", false, false, false, false]
   test.ok strictSome(identity, a) is "foo"
   test.done()
 
-exports.strictSome2 = (test) ->
+exports.testStrictSome2 = (test) ->
   a = [false, false, false, false, false, false, false, false, false]
   test.ok strictSome(identity, a) is false
   test.done()
 
-exports.strictAny = (test) ->
+exports.testStrictAny = (test) ->
   a = [false, false, false, false, "foo", false, false, false, false]
   test.ok strictAny(identity, a) is true
   test.done()
 
-exports.strictEvery1 = (test) ->
+exports.testStrictEvery1 = (test) ->
   a = [true, true, true, true, true, true, true, true, true]
   test.ok strictEvery(identity, a)
   test.done()
 
-exports.strictEvery1 = (test) ->
+exports.testStrictEvery1 = (test) ->
   a = [true, true, true, true, false, true, true, true, true]
   test.ok strictEvery(identity, a) is false
   test.done()
@@ -267,10 +267,10 @@ exports.testDrop = (test) ->
   test.ok equals drop(5, s), [6,7,8,9,10]
   test.done()
 
-# exports.testLazyPartition = (test) ->
-#   a = toLazy [1..10]
-#   test.ok equals lazyPartition(2, a), [[1,2],[3,4],[5,6],[7,8],[9,10]]
-#   test.done()
+exports.testLazyPartition = (test) ->
+  a = toLazy [1..10]
+  test.ok equals lazyPartition(2, a), [[1,2],[3,4],[5,6],[7,8],[9,10]]
+  test.done()
 
 
 {lazyMap, lazyReduce, lazyFilter} = fun
@@ -280,16 +280,40 @@ exports.testLazyMap = (test) ->
   test.ok equals s, [2..10]
   test.done()
 
-exports.lazyReduce = (test) ->
+exports.testLazyReduce = (test) ->
   s = range 1, 10
   test.ok equals lazyReduce(sum, s), 45
   test.done()
 
-# exports.lazyFilter = (test) ->
-#   s = range 1, 10
-#   test.ok equals lazyFilter(even, s), [0,2,4,6,8]
-#   test.done()
+exports.testLazyFilter = (test) ->
+  s = range 1, 10
+  test.ok equals lazyFilter(even, s), [2,4,6,8]
+  test.done()
 
 
-{lazySome, lazyEvery} = fun
+{lazySome, lazyAny, lazyEvery} = fun
 
+exports.testLazySome1 = (test) ->
+  s = toLazy [false, false, false, false, "foo", false, false, false, false]
+  test.ok lazySome(identity, s) is "foo"
+  test.done()
+
+exports.testLazySome2 = (test) ->
+  s = toLazy [false, false, false, false, false, false, false, false, false]
+  test.ok lazySome(identity, s) is false
+  test.done()
+
+exports.testLazyAny = (test) ->
+  s = toLazy [false, false, false, false, "foo", false, false, false, false]
+  test.ok lazyAny(identity, s) is true
+  test.done()
+
+exports.testLazyEvery1 = (test) ->
+  s = toLazy [true, true, true, true, true, true, true, true, true]
+  test.ok lazyEvery(identity, s)
+  test.done()
+
+exports.testLazyEvery1 = (test) ->
+  s = toLazy [true, true, true, true, false, true, true, true, true]
+  test.ok lazyEvery(identity, s) is false
+  test.done()
