@@ -317,3 +317,13 @@ exports.testLazyEvery1 = (test) ->
   s = toLazy [true, true, true, true, false, true, true, true, true]
   test.ok lazyEvery(identity, s) is false
   test.done()
+
+
+{seq} = fun
+
+exports.testSeq = (test) ->
+  a = [0..10]
+  b = range 0, 10
+  test.ok seq(a) is a
+  test.ok seq(b) is b
+  test.done()

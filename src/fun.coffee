@@ -143,6 +143,30 @@ strictEvery = (pred, coll) ->
   true
 
 # ==============================================================================
+# Sequences
+
+type = arity
+  1: (a) ->
+     a.constructor.name or a.constructor._name
+  2: (a, b) ->
+     aname = a.constructor.name or a.constructor._name
+     bname = b.constructor.name or b.constructor._name
+     "#{aname}:#{bname}"
+
+namedNodeMapToSeq = arity
+  1: (x) -> namedNodeMapToSeq x, 0
+  2: (x, i) ->
+    if x > x.length
+      null
+    else
+      lazyseq x.item(i), -> namedNodeMapToSeq x, i+1
+
+seq = dispatch type,
+  Array: identity
+  LazySeq: identity
+  NamedNodeMap: namedNodeMapToSeq
+
+# ==============================================================================
 # Lazy Sequences
 
 class LazySeq
@@ -315,14 +339,6 @@ arrayLazySeqEquals = (a, b) ->
 # ==============================================================================
 # Generic
 
-type = arity
-  1: (a) ->
-     a.constructor.name or a.constructor._name
-  2: (a, b) ->
-     aname = a.constructor.name or a.constructor._name
-     bname = b.constructor.name or b.constructor._name
-     "#{aname}:#{bname}"
-
 seqType = arity
   2: (f, s) ->
     s.constructor.name or s.constructor._name
@@ -410,6 +426,7 @@ toExport =
   strictAny: strictAny
   strictEvery: strictEvery
   partition: partition
+  seq: seq
   LazySeq: LazySeq
   lazyseq: lazyseq
   toLazy: toLazy
