@@ -153,18 +153,10 @@ type = arity
      bname = b.constructor.name or b.constructor._name
      "#{aname}:#{bname}"
 
-namedNodeMapToSeq = arity
-  1: (x) -> namedNodeMapToSeq x, 0
-  2: (x, i) ->
-    if x > x.length
-      null
-    else
-      lazyseq x.item(i), -> namedNodeMapToSeq x, i+1
-
 seq = dispatch type,
   Array: identity
   LazySeq: identity
-  NamedNodeMap: namedNodeMapToSeq
+  Object: (o) -> [k, v] for k, v of o
 
 # ==============================================================================
 # Lazy Sequences
