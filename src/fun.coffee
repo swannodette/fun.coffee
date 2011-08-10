@@ -215,9 +215,8 @@ lazyPartition = (n, s, pad) ->
     if r is null
       c = count p
       if c < n and pad
-        concat p, take(n-c, pad)
-      else
-        lazyseq p, null
+        p = concat p, take(n-c, pad)
+      lazyseq p, null
     else
       lazyseq p, -> lazyPartition n, r, pad
 
