@@ -201,7 +201,7 @@ cycle = (coll) ->
   cyclefn = (i) ->
     i = i % coll.length
     lazyseq coll[i], -> cyclefn i+1
-  cyclefn(0)
+  cyclefn 0
 
 lazyConcat = (a, b) ->
   if a is null
@@ -210,10 +210,14 @@ lazyConcat = (a, b) ->
     lazyseq a.first(), -> lazyConcat a.rest(), b
 
 lazyPartition = (n, s, pad) ->
-    p = toArray take n, s
+    p = take n, s
     r = drop n, s
     if r is null
-      lazyseq p, null
+      c = count p
+      if c < n and pad
+        concat p, take(n-c, pad)
+      else
+        lazyseq p, null
     else
       lazyseq p, -> lazyPartition n, r, pad
 
@@ -331,11 +335,30 @@ arrayLazySeqEquals = (a, b) ->
 # ==============================================================================
 # Generic
 
+type = (x) ->
+  x.constructor.name or x.constructor._name
+
 seqType = arity
   2: (f, s) ->
     s.constructor.name or s.constructor._name
   default: (f, _, s) ->
     s.constructor.name or s.constructor._name
+
+count = dispatch type,
+  Array: (array) -> array.length
+  LazySeq: (seq) -> reduce inc, 0, seq
+
+first = dispatch type,
+  Array: (array) -> array[0]
+  LazySeq: (seq) -> seq.first()
+
+rest = dispatch type,
+  Array: (array) -> array[1..]
+  LazySeq: (seq) -> seq.rest()
+
+nth = dispatch type,
+  Array: (array, n) -> array[n]
+  LazySeq: (seq, n) -> first drop n, seq
 
 map = dispatch seqType,
   Array: strictMap
@@ -440,6 +463,8 @@ toExport =
   range: range
   last: last
   seqType: seqType
+  count: count
+  nth: nth
   map: map
   mapIndexed: mapIndexed
   filter: filter
