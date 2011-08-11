@@ -203,10 +203,14 @@ strictEvery = (pred, coll) ->
 # ==============================================================================
 # Sequences
 
+empty = dispatch type,
+  Array: (coll) -> coll.length > 0
+  LazySeq: (coll) -> coll
+
 seq = dispatch type,
-  Array: identity
+  Array: (coll) -> if empty coll then null else coll
   LazySeq: identity
-  Object: (o) -> [k, v] for k, v of o
+  Object: (o) -> toLazy([k, v] for k, v of o)
 
 # ==============================================================================
 # Lazy Sequences
@@ -306,9 +310,15 @@ lazyMap = arity
   0: -> throw new Error("Not enough arguments to lazyMap")
   1: -> throw new Error("Not enough arguments to lazyMap")
   2: (f, coll) ->
-    lazyseq f(first(coll)), -> lazyMap f, rest(coll)
+    if coll is null
+      null
+    else
+      lazyseq f(first(coll)), -> lazyMap f, rest(coll)
   default: (f, colls...) ->
-    lazyseq apply(f, (map first, colls)), -> apply lazyMap, f, (map rest, colls)
+    if not every ((coll) -> (seq(coll) != null)), colls
+      null
+    else
+      lazyseq apply(f, (map first, colls)), -> apply lazyMap, f, (map rest, colls)
 
 lazyMapIndexed = arity
   0: -> throw new Error("Not enough arguments to lazyMapIndexed")
@@ -338,27 +348,23 @@ lazyFilter = (pred, s) ->
     null
 
 lazySome = (pred, s) ->
-  if s
+  while s
     h = first s
     if pred h
-      h
-    else
-      lazySome pred, rest s
-  else
-     false
+      return h
+    s = rest s
+  false
 
 lazyAny = (pred, s) ->
   lazySome(pred, s) and true
 
 lazyEvery = (pred, s) ->
-  if s
+  while s
     h = first s
     if not pred h
-      false
-    else
-      lazyEvery pred, rest s
-  else
-     true
+      return false
+    s = rest s
+  true
 
 # ==============================================================================
 # Equality
@@ -404,11 +410,11 @@ count = dispatch type,
   LazySeq: (seq) -> reduce inc, 0, seq
 
 first = dispatch type,
-  Array: (array) -> array[0]
-  LazySeq: (seq) -> seq.first()
+  Array: (array) -> if array.length > 0 then array[0] else null
+  LazySeq: (seq) -> if seq then seq.first() else null
 
 rest = dispatch type,
-  Array: (array) -> array[1..]
+  Array: (array) -> if array.length > 1 then array[1..] else null
   LazySeq: (seq) -> seq.rest()
 
 nth = dispatch type,
@@ -533,6 +539,7 @@ toExport =
   any: any
   every: every
   equals: equals
+  empty: empty
 
 if exports?
   for n, f of toExport
