@@ -1,3 +1,53 @@
+arity = (arities) ->
+  (args...) ->
+    f = arities[args.length]
+    if not f
+      f = arities["default"]
+    if not f
+      throw Error "No dispatch for arity #{args.length}"
+    f.apply null, args
+
+dispatch = (dfn, table) ->
+  f = (args...) ->
+        f =  table[dfn.apply(null, args)]
+        if not f
+          f = table["default"]
+        if not f
+          throw Error "No dispatch for arguments #{args}"
+        f.apply null, args
+  f._table = table
+  f._dfn = dfn
+  f
+
+type = arity
+  1: (a) ->
+    if a.length
+      'Array'
+    else
+      a.constructor.name or a.constructor._name
+  2: (a, b) ->
+    if a.length
+      aname = 'Array'
+    else
+      aname = a.constructor.name or a.constructor._name
+    if b.length
+      bname = 'Array'
+    else
+      bname = b.constructor.name or b.constructor._name
+    "#{aname}:#{bname}"
+
+seqType = arity
+  2: (f, s) ->
+    if s.length
+      'Array'
+    else
+      s.constructor.name or s.constructor._name
+  default: (f, _, s) ->
+    if s.length
+      'Array'
+    else
+      s.constructor.name or s.constructor._name
+
 eq = (a, b) -> a is b
 
 inc = (x) -> x + 1
@@ -24,36 +74,26 @@ mesg = (sel, args...) -> (o) -> o[sel].apply o, args
 
 flip = (f) -> (a, b) -> f b, a
 
-apply = (f, args) -> f.apply null, args
+apply = dispatch seqType,
+  Array: (f, args) ->
+    f.apply null, args
+  LazySeq: arity
+    2: (f, args) ->
+      f.apply null, toArray args
+    3: (f, arg, args) ->
+      args = toArray args
+      args.unshift arg
+      f.apply null, args
 
 call = (f, args...) -> f.apply null, args
 
 partial = (f, rest1...) -> (rest2...) -> f.apply null, rest1.concat rest2
 
+array = (args...)-> x for x in args
+
 keys = (o) -> k for k, v of o
 
 vals = (o) -> v for k, v of o
-
-arity = (arities) ->
-  (args...) ->
-    f = arities[args.length]
-    if not f
-      f = arities["default"]
-    if not f
-      throw Error "No dispatch for arity #{args.length}"
-    f.apply null, args
-
-dispatch = (dfn, table) ->
-  f = (args...) ->
-        f =  table[dfn.apply(null, args)]
-        if not f
-          f = table["default"]
-        if not f
-          throw Error "No dispatch for arguments #{args}"
-        f.apply null, args
-  f._table = table
-  f._dfn = dfn
-  f
 
 extendfn = (gfn, exts) ->
   for t, f of exts
@@ -145,14 +185,6 @@ strictEvery = (pred, coll) ->
 # ==============================================================================
 # Sequences
 
-type = arity
-  1: (a) ->
-     a.constructor.name or a.constructor._name
-  2: (a, b) ->
-     aname = a.constructor.name or a.constructor._name
-     bname = b.constructor.name or b.constructor._name
-     "#{aname}:#{bname}"
-
 seq = dispatch type,
   Array: identity
   LazySeq: identity
@@ -177,8 +209,8 @@ toLazy = (coll) ->
 toArray = (s) ->
   acc = []
   while s
-    acc.push s.first()
-    s = s.rest()
+    acc.push first s
+    s = rest s
   acc
 
 range = arity
@@ -207,7 +239,7 @@ lazyConcat = (a, b) ->
   if a is null
     b
   else
-    lazyseq a.first(), -> lazyConcat a.rest(), b
+    lazyseq first(a), -> lazyConcat rest(a), b
 
 lazyPartition = (n, s, pad) ->
     p = take n, s
@@ -234,51 +266,53 @@ take = (n, s) ->
   if n is 0 or s is null
     null
   else
-    lazyseq s.first(), -> take dec(n), s.rest()
+    lazyseq first s, -> take dec(n), rest s
 
 last = (s) ->
   c = null
   while s
-    c = s.first()
-    s = s.rest()
+    c = first s
+    s = rest s
   c
 
-lazyMap = (f, s) ->
-  if s
-    lazyseq f(s.first()), -> lazyMap f, s.rest()
-  else
-    null
+lazyMap = arity
+  0: -> null
+  1: -> null
+  2: (f, coll) ->
+    lazyseq f(first coll), -> lazyMap f, (rest coll)
+  default: (f, colls...) ->
+    lazyseq apply(f, (map first, colls)), -> apply lazyMap, f, (map rest, colls)
 
 lazyMapIndexed = arity
   2: (f, s) -> lazyMapIndex f, s, 0
   3: (f, s, i) ->
-    lazyseq f(s.first(), i), -> lazyMapIndexed f, s.rest(), i+1
+    lazyseq f(first(s), i), -> lazyMapIndexed f, rest(s), i+1
 
 lazyReduce = arity
-  2: (f, s) -> lazyReduce f, s.first(), s.rest()
+  2: (f, s) -> lazyReduce f, first(s), rest(s)
   3: (f, acc, s) ->
     while s
-      acc = f acc, s.first()
-      s = s.rest()
+      acc = f acc, rest s
+      s = rest s
     acc
 
 lazyFilter = (pred, s) ->
   if s
-    h = s.first()
+    h = first s
     if pred h
-      lazyseq h, -> lazyFilter pred, s.rest()
+      lazyseq h, -> lazyFilter pred, rest s
     else
-      lazyFilter pred, s.rest()
+      lazyFilter pred, rest s
   else
     null
 
 lazySome = (pred, s) ->
   if s
-    h = s.first()
+    h = first s
     if pred h
       h
     else
-      lazySome pred, s.rest()
+      lazySome pred, rest s
   else
      false
 
@@ -287,11 +321,11 @@ lazyAny = (pred, s) ->
 
 lazyEvery = (pred, s) ->
   if s
-    h = s.first()
+    h = first s
     if not pred h
       false
     else
-      lazyEvery pred, s.rest()
+      lazyEvery pred, rest s
   else
      true
 
@@ -321,8 +355,8 @@ lazySeqEquals = (a, b) ->
   else if not a and not b
     true
   else
-    ah = a.first()
-    bh = b.first()
+    ah = first a
+    bh = first b
     if not equals ah, bh
       false
     else
@@ -333,15 +367,6 @@ arrayLazySeqEquals = (a, b) ->
 
 # ==============================================================================
 # Generic
-
-type = (x) ->
-  x.constructor.name or x.constructor._name
-
-seqType = arity
-  2: (f, s) ->
-    s.constructor.name or s.constructor._name
-  default: (f, _, s) ->
-    s.constructor.name or s.constructor._name
 
 count = dispatch type,
   Array: (array) -> array.length
