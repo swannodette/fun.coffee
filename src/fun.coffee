@@ -20,6 +20,7 @@ dispatch = (dfn, table) ->
   f
 
 type = arity
+  0: -> throw new Error("Not enough arguments to arity")
   1: (a) ->
     if a.length
       'Array'
@@ -37,6 +38,8 @@ type = arity
     "#{aname}:#{bname}"
 
 seqType = arity
+  0: -> throw new Error("Not enough arguments to seqType")
+  1: -> throw new Error("Not enough arguments to seqType")
   2: (f, s) ->
     if s.length
       'Array'
@@ -115,6 +118,8 @@ merge = arity
     reduce merge, ms
 
 mergeWith = arity
+  0: -> throw new Error("Not enough arguments to mergeWith")
+  1: -> throw new Error("Not enough arguments to mergeWith")
   2: (f, a) -> a
   3: (f, a, b) ->
     r = {}
@@ -149,6 +154,8 @@ strictMapIndexed = (f, coll) ->
   f(x, i) for x, i in colls[0]
 
 strictReduce = arity
+  0: -> throw new Error("Not enough arguments to strictReduce")
+  1: -> throw new Error("Not enough arguments to strictReduce")
   2: (f, coll) -> strictReduce f, coll[0], coll[1..]
   3: (f, acc, coll) ->
     for x in coll
@@ -216,6 +223,7 @@ toArray = (s) ->
   acc
 
 range = arity
+  0: -> throw new Error("Not enough arguments to range")
   1: (end) -> range 0, end
   2: (start, end) ->
     if start is end
@@ -224,10 +232,12 @@ range = arity
       lazyseq start, -> range inc(start), end
 
 repeat = arity
+  0: -> throw new Error("Not enough arguments to repeat")
   1: (x) -> lazyseq x, -> repeat x
   2: (n, x) -> take n, repeat x
 
 repeatedly = arity
+  0: -> throw new Error("Not enough arguments to repeatedly")
   1: (f) -> lazyseq f(), -> repeatedly f
   2: (n, f) -> take n, repeatedly f
 
@@ -255,6 +265,7 @@ lazyPartition = (n, s, pad) ->
       lazyseq p, -> lazyPartition n, r, pad
 
 drop = arity
+  0: -> throw new Error("Not enough arguments to drop")
   1: (s) -> drop 1, s
   2: (n, s) ->
     if s is null
@@ -278,19 +289,23 @@ last = (s) ->
   c
 
 lazyMap = arity
-  0: -> null
-  1: -> null
+  0: -> throw new Error("Not enough arguments to lazyMap")
+  1: -> throw new Error("Not enough arguments to lazyMap")
   2: (f, coll) ->
     lazyseq f(first coll), -> lazyMap f, (rest coll)
   default: (f, colls...) ->
     lazyseq apply(f, (map first, colls)), -> apply lazyMap, f, (map rest, colls)
 
 lazyMapIndexed = arity
+  0: -> throw new Error("Not enough arguments to lazyMapIndexed")
+  1: -> throw new Error("Not enough arguments to lazyMapIndexed")
   2: (f, s) -> lazyMapIndex f, s, 0
   3: (f, s, i) ->
     lazyseq f(first(s), i), -> lazyMapIndexed f, rest(s), i+1
 
 lazyReduce = arity
+  0: -> throw new Error("Not enough arguments to lazyReduce")
+  1: -> throw new Error("Not enough arguments to lazyReduce")
   2: (f, s) -> lazyReduce f, first(s), rest(s)
   3: (f, acc, s) ->
     while s
