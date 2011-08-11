@@ -78,6 +78,8 @@ apply = dispatch seqType,
   Array: (f, args) ->
     f.apply null, args
   LazySeq: arity
+    0: -> throw new Error("Not enough arguments to apply")
+    1: -> throw new Error("Not enough arguments to apply")
     2: (f, args) ->
       f.apply null, toArray args
     3: (f, arg, args) ->
