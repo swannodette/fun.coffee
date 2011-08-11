@@ -97,17 +97,19 @@ exports.testFirst = (test) ->
   test.ok first(["foo", "bar"]) is "foo"
   test.done()
 
+exports.testRest = (test) ->
+  test.ok equals rest(["foo", "bar"]), ["bar"]
+  test.done()
+
 
 {equals, keys, vals} = fun
 
 exports.testEquals = (test) ->
-  console.log first ["foo", "bar"]
   test.ok equals ["foo", "bar"], ["foo", "bar"]
   test.done()
 
 exports.testKeys = (test) ->
   o = {foo:"bar", baz:"woz"}
-  console.log keys(o)
   test.ok equals keys(o), ["foo", "baz"]
   test.done()
 

@@ -22,16 +22,16 @@ dispatch = (dfn, table) ->
 type = arity
   0: -> throw new Error("Not enough arguments to type")
   1: (a) ->
-    if a.length
+    if typeof a != 'string' and a.length
       'Array'
     else
       a.constructor.name or a.constructor._name
   2: (a, b) ->
-    if a.length
+    if typeof a != 'string' and a.length
       aname = 'Array'
     else
       aname = a.constructor.name or a.constructor._name
-    if b.length
+    if typeof a != 'string' and b.length
       bname = 'Array'
     else
       bname = b.constructor.name or b.constructor._name
@@ -41,12 +41,12 @@ seqType = arity
   0: -> throw new Error("Not enough arguments to seqType")
   1: -> throw new Error("Not enough arguments to seqType")
   2: (f, s) ->
-    if s.length
+    if typeof a != 'string' and s.length
       'Array'
     else
       s.constructor.name or s.constructor._name
   default: (f, _, s) ->
-    if s.length
+    if typeof a != 'string' and s.length
       'Array'
     else
       s.constructor.name or s.constructor._name
