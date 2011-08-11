@@ -335,7 +335,7 @@ lazyReduce = arity
   2: (f, s) -> lazyReduce f, first(s), rest(s)
   3: (f, acc, s) ->
     while s
-      acc = f acc, rest s
+      acc = f acc, first s
       s = rest s
     acc
 
