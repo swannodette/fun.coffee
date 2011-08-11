@@ -233,8 +233,12 @@ range = arity
 
 repeat = arity
   0: -> throw new Error("Not enough arguments to repeat")
-  1: (x) -> lazyseq x, -> repeat x
-  2: (n, x) -> take n, repeat x
+  1: (x) ->
+    console.log '1 arg'
+    lazyseq x, -> repeat x
+  2: (n, x) ->
+    console.log '2 args'
+    take n, repeat x
 
 repeatedly = arity
   0: -> throw new Error("Not enough arguments to repeatedly")
@@ -279,7 +283,7 @@ take = (n, s) ->
   if n is 0 or s is null
     null
   else
-    lazyseq first s, -> take dec(n), rest s
+    lazyseq first(s), -> take n-1, rest(s)
 
 last = (s) ->
   c = null
@@ -292,7 +296,7 @@ lazyMap = arity
   0: -> throw new Error("Not enough arguments to lazyMap")
   1: -> throw new Error("Not enough arguments to lazyMap")
   2: (f, coll) ->
-    lazyseq f(first coll), -> lazyMap f, (rest coll)
+    lazyseq f(first(coll)), -> lazyMap f, rest(coll)
   default: (f, colls...) ->
     lazyseq apply(f, (map first, colls)), -> apply lazyMap, f, (map rest, colls)
 
