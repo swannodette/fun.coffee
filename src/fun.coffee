@@ -204,7 +204,7 @@ strictEvery = (pred, coll) ->
 # Sequences
 
 empty = dispatch type,
-  Array: (coll) -> coll.length > 0
+  Array: (coll) -> coll.length is 0
   LazySeq: (coll) -> coll
 
 seq = dispatch type,
@@ -222,16 +222,18 @@ class LazySeq
 
 lazyseq = (h, t) -> new LazySeq h, t
 
-toLazy = (coll) ->
-  if coll.length is 0
-    return null
-  h = coll[0]
-  lazyseq h, -> toLazy coll[1..]
+toLazy = dispatch type,
+  Array: (coll) ->
+    if coll.length is 0
+      return null
+    else
+      h = coll[0]
+      lazyseq h, -> toLazy coll[1..]
+  LazySeq: identity
 
-toArray = (s) ->
-  if (typeof s is 'array') or s.length
-    s
-  else
+toArray = dispatch type,
+  Array: identity
+  LazySeq: (s) ->
     acc = []
     while s
       acc.push first s
