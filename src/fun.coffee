@@ -376,7 +376,13 @@ objectEquals = (a, b) ->
   true
 
 arrayEquals = (a, b) ->
-  if not (a.length is b.length)
+  if a and not b
+    false
+  else if not a and b
+    false
+  else if not a and not b
+    true
+  else if not (a.length is b.length)
     false
   else
     for x, i in a
@@ -410,7 +416,7 @@ count = dispatch type,
   LazySeq: (seq) -> reduce inc, 0, seq
 
 first = dispatch type,
-  Array: (array) -> if array.length > 0 then array[0] else null
+  Array: (array) -> if array and array.length > 0 then array[0] else null
   LazySeq: (seq) -> if seq then seq.first() else null
 
 rest = dispatch type,
