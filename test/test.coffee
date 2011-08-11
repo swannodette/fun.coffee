@@ -91,10 +91,23 @@ exports.testPartial = (test) ->
   test.done()
 
 
+{first, rest} = fun
+
+exports.testFirst = (test) ->
+  test.ok first(["foo", "bar"]) is "foo"
+  test.done()
+
+
 {equals, keys, vals} = fun
+
+exports.testEquals = (test) ->
+  console.log first ["foo", "bar"]
+  test.ok equals ["foo", "bar"], ["foo", "bar"]
+  test.done()
 
 exports.testKeys = (test) ->
   o = {foo:"bar", baz:"woz"}
+  console.log keys(o)
   test.ok equals keys(o), ["foo", "baz"]
   test.done()
 
@@ -104,7 +117,7 @@ exports.testVals = (test) ->
   test.done()
 
 
-{arity, dispatch, extendfn} = fun
+{arity, dispatch, type, extendfn} = fun
 
 exports.testArity = (test) ->
   f = arity
@@ -131,6 +144,10 @@ exports.testDispatch = (test) ->
   test.ok f(0) is "wow"
   test.ok f(1) is "pow"
   test.ok f("yuk") is "default"
+  test.done()
+
+exports.testType = (test) ->
+  test.ok type [] is "Array"
   test.done()
 
 exports.testExtendfn = (test) ->

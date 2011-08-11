@@ -20,7 +20,7 @@ dispatch = (dfn, table) ->
   f
 
 type = arity
-  0: -> throw new Error("Not enough arguments to arity")
+  0: -> throw new Error("Not enough arguments to type")
   1: (a) ->
     if a.length
       'Array'
@@ -449,6 +449,10 @@ equals = dispatch type,
 # Exports
 
 toExport =
+  arity: arity
+  dispatch: dispatch
+  type: type
+  seqType: seqType
   eq: eq
   inc: inc
   dec: dec
@@ -467,8 +471,6 @@ toExport =
   apply: apply
   call: call
   partial: partial
-  arity: arity
-  dispatch: dispatch
   extendfn: extendfn
   merge: merge
   mergeWith: mergeWith
@@ -503,8 +505,9 @@ toExport =
   lazyEvery: lazyEvery
   range: range
   last: last
-  seqType: seqType
   count: count
+  first: first
+  rest: rest
   nth: nth
   map: map
   mapIndexed: mapIndexed
