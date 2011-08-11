@@ -77,9 +77,18 @@ mesg = (sel, args...) -> (o) -> o[sel].apply o, args
 
 flip = (f) -> (a, b) -> f b, a
 
+clone = (array) -> x for x in array
+
 apply = dispatch seqType,
-  Array: (f, args) ->
-    f.apply null, args
+  Array: arity
+    0: -> throw new Error("Not enough arguments to apply")
+    1: -> throw new Error("Not enough arguments to apply")
+    2: (f, args) ->
+      f.apply null, args
+    3: (f, arg, args) ->
+      args = clone args
+      args.unshift arg
+      f.apply null, args
   LazySeq: arity
     0: -> throw new Error("Not enough arguments to apply")
     1: -> throw new Error("Not enough arguments to apply")
@@ -216,11 +225,14 @@ toLazy = (coll) ->
   lazyseq h, -> toLazy coll[1..]
 
 toArray = (s) ->
-  acc = []
-  while s
-    acc.push first s
-    s = rest s
-  acc
+  if (typeof s is 'array') or s.length
+    s
+  else
+    acc = []
+    while s
+      acc.push first s
+      s = rest s
+    acc
 
 range = arity
   0: -> throw new Error("Not enough arguments to range")
@@ -234,10 +246,8 @@ range = arity
 repeat = arity
   0: -> throw new Error("Not enough arguments to repeat")
   1: (x) ->
-    console.log '1 arg'
     lazyseq x, -> repeat x
   2: (n, x) ->
-    console.log '2 args'
     take n, repeat x
 
 repeatedly = arity
@@ -475,6 +485,7 @@ toExport =
   apply: apply
   call: call
   partial: partial
+  array: array
   extendfn: extendfn
   merge: merge
   mergeWith: mergeWith

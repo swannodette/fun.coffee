@@ -29,6 +29,13 @@ exports.testIdentity = (test) ->
   test.done()
 
 
+{array} = fun
+
+exports.testArray = (test) ->
+  test.ok equals array(1, 2, 3), [1,2,3]
+  test.done()
+
+
 {toFn, get, getIn, accsr, mesg} = fun
 
 exports.testToFn1 = (test) ->
@@ -80,6 +87,15 @@ exports.testApply = (test) ->
   test.ok (apply f, [1,2]) is 3
   test.done()
 
+exports.testApplyExtra = (test) ->
+  test.ok equals apply(array, 1, [2, 3]), [1,2,3]
+  test.done()
+
+exports.testApplySeq = (test) ->
+  s = range 3
+  test.ok equals apply(array, s), [0, 1, 2]
+  test.done()
+
 exports.testCall = (test) ->
   f = (a, b) -> a + b
   test.ok (call f, 1, 2) is 3
@@ -106,6 +122,18 @@ exports.testRest = (test) ->
 
 exports.testEquals = (test) ->
   test.ok equals ["foo", "bar"], ["foo", "bar"]
+  test.done()
+
+exports.testEqualsArraySeq = (test) ->
+  a = ["foo", "bar"]
+  s = seq a
+  test.ok equals ["foo", "bar"], s
+  test.done()
+
+exports.testEqualsSeqArray = (test) ->
+  a = ["foo", "bar"]
+  s = seq a
+  test.ok equals s, ["foo", "bar"]
   test.done()
 
 exports.testKeys = (test) ->
