@@ -160,7 +160,7 @@ strictMap = (f, colls...) ->
       f.apply null, x[i] for x in colls
 
 strictMapIndexed = (f, coll) ->
-  f(x, i) for x, i in colls[0]
+  f(x, i) for x, i in coll
 
 strictReduce = arity
   0: -> throw new Error("Not enough arguments to strictReduce")
