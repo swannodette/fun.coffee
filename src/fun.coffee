@@ -41,12 +41,12 @@ seqType = arity
   0: -> throw new Error("Not enough arguments to seqType")
   1: -> throw new Error("Not enough arguments to seqType")
   2: (f, s) ->
-    if typeof a != 'string' and s.length
+    if typeof s != 'string' and s.length
       'Array'
     else
       s.constructor.name or s.constructor._name
   default: (f, _, s) ->
-    if typeof a != 'string' and s.length
+    if typeof s != 'string' and s.length
       'Array'
     else
       s.constructor.name or s.constructor._name
