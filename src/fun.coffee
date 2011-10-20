@@ -22,16 +22,16 @@ dispatch = (dfn, table) ->
 type = arity
   0: -> throw new Error("Not enough arguments to type")
   1: (a) ->
-    if typeof a != 'string' and a.length
+    if typeof a != 'string' and a.length != undefined
       'Array'
     else
       a.constructor.name or a.constructor._name
   2: (a, b) ->
-    if typeof a != 'string' and a.length
+    if typeof a != 'string' and a.length != undefined
       aname = 'Array'
     else
       aname = a.constructor.name or a.constructor._name
-    if typeof a != 'string' and b.length
+    if typeof a != 'string' and b.length != undefined
       bname = 'Array'
     else
       bname = b.constructor.name or b.constructor._name
@@ -41,12 +41,12 @@ seqType = arity
   0: -> throw new Error("Not enough arguments to seqType")
   1: -> throw new Error("Not enough arguments to seqType")
   2: (f, s) ->
-    if typeof s != 'string' and s.length
+    if typeof s != 'string' and s.length != undefined
       'Array'
     else
       s.constructor.name or s.constructor._name
   default: (f, _, s) ->
-    if typeof s != 'string' and s.length
+    if typeof s != 'string' and s.length != undefined
       'Array'
     else
       s.constructor.name or s.constructor._name
@@ -112,6 +112,9 @@ vals = (o) -> v for k, v of o
 extendfn = (gfn, exts) ->
   for t, f of exts
     gfn._table[t] = f
+
+containsKey = (m, k) ->
+  m.hasOwnProperty k
 
 merge = arity
   0: -> null
@@ -495,6 +498,7 @@ toExport =
   mesg: mesg
   keys: keys
   vals: vals
+  containsKey: containsKey
   flip: flip
   apply: apply
   call: call
